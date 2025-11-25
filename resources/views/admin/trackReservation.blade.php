@@ -95,6 +95,7 @@
                     <div class="mx-auto px-4 w-full max-[520px]:max-w-[600px]  max-sm:flex-col flex gap-4 items-center justify-center pb-4">
                         <a href="{{route('admin.completeReservation', $slot->id)}}" class="px-10 py-3 rounded-md text-center border-none text-lg text-white shadow bg-[#624E88] hover:bg-[#58457b]">Complete Appointment</a>
                         <a href="{{route('admin.rejectReservation', $slot->id)}}" class="px-10 py-3 rounded-md text-center border-none text-lg text-white shadow bg-red-700 hover:bg-red-800">No-show Appointment</a>
+                         <button  onclick="my_modal_101.showModal()" class="px-10 py-3 rounded-md text-center border-none text-lg text-white shadow bg-red-700 hover:bg-red-800">Cancel Appointment</button>
                     </div>
                     @elseif ($slot->reservation_status === "pending")
                     <div class="mx-auto px-4 w-full max-[520px]:max-w-[600px]  max-sm:flex-col flex gap-4 items-center justify-center pb-4">
@@ -124,6 +125,23 @@
           <h3 class="text-xl text-center font-bold">Reject Appointment</h3>
           <p class="py-2 text-md text-center"> Kindly input the reason for the rejection of the appointment.</p>
             <form action="{{route('admin.rejectedReservation', $slot->id)}}" class=" flex flex-col gap-4 items-center justify-center" method="POST">
+                @csrf
+                <input type="text" name="reason" class="input input-bordered w-full max-w-xs" id="reason" placeholder="Enter reason..">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                
+            </form>
+          
+        </div>
+      </dialog>
+
+        <dialog id="my_modal_101" class="modal">
+        <div class="modal-box">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+              </form>
+          <h3 class="text-xl text-center font-bold">Cancel Appointment</h3>
+          <p class="py-2 text-md text-center"> Kindly input the reason for the cancellation of the appointment.</p>
+            <form action="{{route('admin.cancelAppointment', $slot->id)}}" class=" flex flex-col gap-4 items-center justify-center" method="POST">
                 @csrf
                 <input type="text" name="reason" class="input input-bordered w-full max-w-xs" id="reason" placeholder="Enter reason..">
                 <button type="submit" class="btn btn-primary">Submit</button>

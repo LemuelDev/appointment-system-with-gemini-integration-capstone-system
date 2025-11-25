@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\ApproveEmail;
 use App\Mail\ApproveReservation;
 use App\Mail\RejectAppointment;
+use App\Mail\CancelAppointment;
 use App\Models\ClinicHours;
 use App\Models\Reservation;
 use App\Models\TimeSlot;
@@ -597,6 +598,26 @@ class AdminController extends Controller
 
         Mail::to($id->reservation->email)->send(new RejectAppointment($message, $date, $time, $treatment,$appointment_number, $patient_number));
         return redirect()->route("admin.appointments")->with("success", "The appointment is rejected!");
+    }
+
+    public function cancelAppointment(Timeslot $id){
+         $validate = request()->validate([
+           "reason" => "required|string|" 
+        ]);
+
+        $message = $validate["reason"];
+        $date = $id->date;
+        $time = $id->time_range;
+        $treatment = $id->treatment_choice;
+        $appointment_number = $id->appointment_number;
+        $patient_number = $id->reservation->patient_number;
+
+         $id->update([
+            "reservation_status" => "canceled"
+            ]);
+        
+        Mail::to($id->reservation->email)->send(new CancelAppointment($message, $date, $time, $treatment,$appointment_number, $patient_number));
+        return redirect()->route("admin.appointments")->with("success", "The appointment is canceled!");
     }
 
     public function completeReservation(TimeSlot $id) {

@@ -100,6 +100,8 @@ Route::get('/admin/appointments/approved/{id}', [AdminController::class, 'approv
 
 Route::post('/admin/appointments/rejected/{id}', [AdminController::class, 'rejectReservation'])->name('admin.rejectedReservation');
 
+Route::post('/admin/appointments/canceled/{id}', [AdminController::class, 'cancelAppointment'])->name('admin.cancelAppointment');
+
 Route::get('/admin/appointment/track/{id}', [AdminController::class, 'trackAppointment'])->name('admin.trackReservation');
 
 Route::get('/admin/appointment/complete/{id}', [AdminController::class, 'completeReservation'])->name('admin.completeReservation');
