@@ -101,6 +101,7 @@
                     <div class="mx-auto px-4 w-full max-[520px]:max-w-[600px]  max-sm:flex-col flex gap-4 items-center justify-center pb-4">
                         <a href="{{route('admin.approvedReservation', $slot->id)}}" class="px-10 py-3 rounded-md text-center border-none text-lg text-white shadow bg-[#624E88] hover:bg-[#58457b]">Approve Appointment</a>
                         <button  onclick="my_modal_100.showModal()" class="px-10 py-3 rounded-md text-center border-none text-lg text-white shadow bg-red-700 hover:bg-red-800">Reject Appointment</button>
+                        <button  onclick="my_modal_101.showModal()" class="px-10 py-3 rounded-md text-center border-none text-lg text-white shadow bg-red-700 hover:bg-red-800">Cancel Appointment</button>
                     </div>
                     @else
                     <div class="mx-auto px-4 w-full max-[520px]:max-w-[600px]  max-sm:flex-col flex gap-4 items-center justify-center pb-4">

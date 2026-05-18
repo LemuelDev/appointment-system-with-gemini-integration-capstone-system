@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\ApproveEmail;
 use App\Mail\ApproveReservation;
+use App\Mail\DentistCancelAppointment;
 use App\Mail\RejectAppointment;
 use App\Mail\CancelAppointment;
 use App\Models\ClinicHours;
@@ -616,7 +617,7 @@ class AdminController extends Controller
             "reservation_status" => "canceled"
             ]);
         
-        Mail::to($id->reservation->email)->send(new CancelAppointment($message, $date, $time, $treatment,$appointment_number, $patient_number));
+        Mail::to($id->reservation->email)->send(new DentistCancelAppointment($message, $date, $time, $treatment,$appointment_number, $patient_number));
         return redirect()->route("admin.appointments")->with("success", "The appointment is canceled!");
     }
 

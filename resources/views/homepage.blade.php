@@ -439,11 +439,6 @@
               <textarea name="reason" required class="textarea textarea-bordered w-full " placeholder="e.g. I have a conflict at this time."></textarea>
              </div>
 
-             <div class="grid">
-              <label for="preferred_date">Preferred New Date (optional):</label>
-              <input type="date" name="preferred_date"  class="input input-bordered w-full " />
-             </div>
-
               <button type="submit" class="btn btn-error mt-4 ">Cancel Appointment</button>
           </form>
           

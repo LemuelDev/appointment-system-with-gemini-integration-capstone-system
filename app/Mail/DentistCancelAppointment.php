@@ -9,11 +9,11 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class CancelAppointment extends Mailable
+class DentistCancelAppointment extends Mailable
 {
     use Queueable, SerializesModels;
 
-    /**
+     /**
      * Create a new message instance.
      */
      public $mailmessage;
@@ -50,7 +50,7 @@ class CancelAppointment extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'shared.canceled-email',
+            view: 'shared.cancelled-doctor',
         );
     }
 

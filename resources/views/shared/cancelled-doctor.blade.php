@@ -10,7 +10,7 @@
     
     <h3>REASON OF CANCELLATION: {{$mailmessage}}</h3>
     <br>
-    <p>You have successfully cancelled your scheduled appointment.</p>
+    <p>NOTICE: Your upcoming appointment has been cancelled by the clinic.</p>
     <p>APPOINTMENT DETAILS:</p>
     <p class="text-lg">APPOINTMENT NUMBER: <span class="font-bold">{{$mailappointment}}</span></p>
     <p class="text-lg">PATIENT NUMBER: <span class="font-bold">{{$mailpatient}}</span></p>
@@ -18,7 +18,7 @@
     <p class="text-lg">TIME: <span class="font-bold">{{$mailtime}}</span></p>
     <p class="text-lg">TREATMENT: <span class="font-bold">{{$mailtreatment}}</span></p>
     <br>
-    <p>If you want to make an appointment again into our clinic, just click the link provided below.</p>
+    <p>If you want to make an appointment again into our clinic, just reply to this email for your desired schedule or visit our website below and make a new appointment to our clinic.Sorry for the inconvenience.</p>
     <p>{{ route('home') }}</p>
     <br>
     <p>Best Regards,</p>

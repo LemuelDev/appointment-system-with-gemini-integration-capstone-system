@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\CancelAppointment;
 use App\Models\EmergencyContact;
 use App\Models\MedicalHistory;
 use App\Models\Reservation;
@@ -12,6 +13,7 @@ use App\Notifications\ReservationConfirmed;
 use App\Notifications\ReservationPending;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
 
@@ -49,7 +51,42 @@ class ReservationController extends Controller
                 ],
             ]);
             
+            // ─── LOCAL REAL-TIME MAIL TRACKING LAYER ─────────────────────────────────────
+            $emailToCheck = $validation['email'];
 
+try {
+    // We target the exact REPUTATION subdomain you tested in your browser
+    $response = \Illuminate\Support\Facades\Http::timeout(6)
+        ->withoutVerifying() // Bypasses local SSL cURL issues on localhost
+        ->get('https://emailreputation.abstractapi.com/v1/', [
+            'api_key' => '325d46e49b954b68897661d6f1ebe51f',
+            'email'   => $emailToCheck
+        ]);
+
+    if ($response->successful()) {
+        $data = $response->json();
+        
+        // Mapping exactly to your screenshot: $data['email_deliverability']['status']
+        if (
+            isset($data['email_deliverability']['status']) && 
+            $data['email_deliverability']['status'] === 'undeliverable'
+        ) {
+            return redirect()->back()
+                ->withInput() // Retains user input in your DaisyUI form
+                ->with('failed', "Our mail system tracking checked '{$emailToCheck}' and confirmed this inbox does not exist. Please use a valid email address.");
+        }
+    } else {
+        // Fallback catch if the API keys are mismatched or server is down
+        \Illuminate\Support\Facades\Log::error("AbstractAPI returned an unhandled status code: " . $response->status());
+    }
+
+} catch (\Exception $e) {
+    // Log any local network connection problems safely to avoid breaking the application flow
+    \Illuminate\Support\Facades\Log::error("Email validation network error: " . $e->getMessage());
+}
+
+
+            
 
             // $app_number = TimeSlot::where('appointment_number', $validation["appointment_number"])->first();
             // $p_number = Reservation::where("patient_number", $validation["patient_number"])->first();
@@ -216,36 +253,42 @@ class ReservationController extends Controller
 }
     public function cancelApp(Request $request)
 {
-    $request->validate([
-        'reason' => 'required|string',
-        'appointment_number' => 'required|string',
-        'preferred_date' => 'nullable|date',
+    $validate = request()->validate([
+     'reason' => 'required|string',
+    'appointment_number' => 'required|string',
     ]);
 
-    $reservation = TimeSlot::where("appointment_number", $request->appointment_number)->first();
+    $timeslot = TimeSlot::where("appointment_number", $validate['appointment_number'])->first();
 
-    if(!$reservation){
-        return redirect()->route('home')->with('error', 'Your appointment number is incorrect.');
-    }
+// 2. Check if the timeslot record exists
+if (!$timeslot) {
+    return redirect()->route('home')->with('error', 'Your appointment number is incorrect.');
+}
 
-    if($reservation->reservation_status == 'cancelled'){
-        return redirect()->route('home')->with('error', 'The appointment is already cancelled.');
-    }
+// 3. Check if it's already cancelled
+if ($timeslot->reservation_status === 'cancelled') {
+    return redirect()->route('home')->with('error', 'The appointment is already cancelled.');
+}
 
+// 4. Update the cancellation status and free up the slot immediately on this row!
+$timeslot->reservation_status = 'cancelled';
+$timeslot->is_occupied = 0; // Since everything is in this table, free it right here
+$timeslot->save();
 
-    $reservation->reservation_status = 'cancelled';
-    $reservation->is_occupied = 0;
+// 5. Send the cancellation email cleanly
+// We access the patient's email and details through the 'reservation' relationship on your TimeSlot model
+if ($timeslot->reservation) {
+    Mail::to($timeslot->reservation->email)->send(new CancelAppointment(
+        $validate['reason'], 
+        $timeslot->date, 
+        $timeslot->time_range,        // Direct column on timeslot
+        $timeslot->treatment_choice,   // Direct column on timeslot
+        $timeslot->appointment_number, 
+        $timeslot->reservation->patient_number // Pulled from the related table
+    ));
+}
 
-    // Combine reason and preferred date into remarks
-    $remarks = $request->reason;
-    if ($request->preferred_date) {
-        $remarks .= ' | Preferred new date: ' . Carbon::parse($request->preferred_date)->format('F d, Y');
-    }
-
-    $reservation->remarks = $remarks;
-    $reservation->save();
-
-    return redirect()->route('patient.create')->with('success', 'Your appointment was cancelled with your remark. If you want to reschedule, please make another appointment in the existing patient with your desired date.');
+return redirect()->route('home')->with('success', 'Your appointment has been successfully cancelled.');
 }
 
 

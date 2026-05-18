@@ -61,7 +61,7 @@ Route::get('/appointment/create/', [PatientController::class, 'createReservation
 
 Route::post('/appointment/post', [ReservationController::class, 'store'])
     // Add the throttle middleware here
-    ->middleware('throttle:5,60') 
+    ->middleware('throttle:3,60') 
     ->name('patient.store');
 
 Route::post('/appointment/post/existing', [ReservationController::class, 'existingPatient'])->name('patient.existing');
