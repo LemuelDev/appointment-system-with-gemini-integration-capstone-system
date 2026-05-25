@@ -54,50 +54,37 @@ class ReservationController extends Controller
             // ─── LOCAL REAL-TIME MAIL TRACKING LAYER ─────────────────────────────────────
             $emailToCheck = $validation['email'];
 
-try {
-    // We target the exact REPUTATION subdomain you tested in your browser
-    $response = \Illuminate\Support\Facades\Http::timeout(6)
-        ->withoutVerifying() // Bypasses local SSL cURL issues on localhost
-        ->get('https://emailreputation.abstractapi.com/v1/', [
-            'api_key' => '325d46e49b954b68897661d6f1ebe51f',
-            'email'   => $emailToCheck
-        ]);
+            try {
+                // We target the exact REPUTATION subdomain you tested in your browser
+                $response = \Illuminate\Support\Facades\Http::timeout(6)
+                    ->withoutVerifying() // Bypasses local SSL cURL issues on localhost
+                    ->get('https://emailreputation.abstractapi.com/v1/', [
+                        'api_key' => '325d46e49b954b68897661d6f1ebe51f',
+                        'email'   => $emailToCheck
+                    ]);
 
-    if ($response->successful()) {
-        $data = $response->json();
-        
-        // Mapping exactly to your screenshot: $data['email_deliverability']['status']
-        if (
-            isset($data['email_deliverability']['status']) && 
-            $data['email_deliverability']['status'] === 'undeliverable'
-        ) {
-            return redirect()->back()
-                ->withInput() // Retains user input in your DaisyUI form
-                ->with('failed', "Our mail system tracking checked '{$emailToCheck}' and confirmed this inbox does not exist. Please use a valid email address.");
-        }
-    } else {
-        // Fallback catch if the API keys are mismatched or server is down
-        \Illuminate\Support\Facades\Log::error("AbstractAPI returned an unhandled status code: " . $response->status());
-    }
+                if ($response->successful()) {
+                    $data = $response->json();
+                    
+                    // Mapping exactly to your screenshot: $data['email_deliverability']['status']
+                    if (
+                        isset($data['email_deliverability']['status']) && 
+                        $data['email_deliverability']['status'] === 'undeliverable'
+                    ) {
+                        return redirect()->back()
+                            ->withInput() // Retains user input in your DaisyUI form
+                            ->with('failed', "Our mail system tracking checked '{$emailToCheck}' and confirmed this inbox does not exist. Please use a valid email address.");
+                    }
+                } else {
+                    // Fallback catch if the API keys are mismatched or server is down
+                    \Illuminate\Support\Facades\Log::error("AbstractAPI returned an unhandled status code: " . $response->status());
+                }
 
-} catch (\Exception $e) {
-    // Log any local network connection problems safely to avoid breaking the application flow
-    \Illuminate\Support\Facades\Log::error("Email validation network error: " . $e->getMessage());
-}
+            } catch (\Exception $e) {
+                // Log any local network connection problems safely to avoid breaking the application flow
+                \Illuminate\Support\Facades\Log::error("Email validation network error: " . $e->getMessage());
+            }
 
-
-            
-
-            // $app_number = TimeSlot::where('appointment_number', $validation["appointment_number"])->first();
-            // $p_number = Reservation::where("patient_number", $validation["patient_number"])->first();
-
-            // if ($app_number){
-            //     return redirect()->back()->with("failed", "The Appointment Number is already been taken");
-            // }
-
-            // if ($p_number){
-            //     return redirect()->back()->with("failed", "The Patient Number is already been taken");
-            // }
 
              $existing_patient = Reservation::where("email", $validation["email"])->first();
 
@@ -136,6 +123,14 @@ try {
                 "medical_history" => $validation["medical_history"],
                 "reservation_id" => $reservation->id
             ]);
+
+            $admin = \App\Models\User::where('username', '@Jlencina30')->first();
+            if ($admin) {
+                $admin->notify(new \App\Notifications\ClinicNotification(
+                    'New Appointment Request',
+                    "Patient booked appointment #{$timeslot->appointment_number} for {$timeslot->treatment_choice} on {$timeslot->date}."
+                ));
+            }
             
             
             
@@ -205,6 +200,14 @@ try {
                 "medical_history" => $validation["medical_history"],
                 "reservation_id" => $reservation->id
             ]);
+
+              $admin = \App\Models\User::where('username', '@Jlencina30')->first();
+            if ($admin) {
+                $admin->notify(new \App\Notifications\ClinicNotification(
+                    'New Appointment Request',
+                    "Patient booked appointment #{$timeslot->appointment_number} for {$timeslot->treatment_choice} on {$timeslot->date}."
+                ));
+            }
             
             
             
@@ -274,6 +277,14 @@ if ($timeslot->reservation_status === 'cancelled') {
 $timeslot->reservation_status = 'cancelled';
 $timeslot->is_occupied = 0; // Since everything is in this table, free it right here
 $timeslot->save();
+
+$admin = \App\Models\User::where('username', '@Jlencina30')->first();
+if ($admin) {
+    $admin->notify(new \App\Notifications\ClinicNotification(
+        'Appointment Cancelled',
+        "Appointment #{$timeslot->appointment_number} has been cancelled by the patient. Reason: " . $validate['reason']
+    ));
+}
 
 // 5. Send the cancellation email cleanly
 // We access the patient's email and details through the 'reservation' relationship on your TimeSlot model

@@ -61,7 +61,7 @@ Route::get('/appointment/create/', [PatientController::class, 'createReservation
 
 Route::post('/appointment/post', [ReservationController::class, 'store'])
     // Add the throttle middleware here
-    ->middleware('throttle:3,60') 
+    ->middleware('throttle:10,60') 
     ->name('patient.store');
 
 Route::post('/appointment/post/existing', [ReservationController::class, 'existingPatient'])->name('patient.existing');
@@ -103,6 +103,12 @@ Route::post('/admin/appointments/rejected/{id}', [AdminController::class, 'rejec
 Route::post('/admin/appointments/canceled/{id}', [AdminController::class, 'cancelAppointment'])->name('admin.cancelAppointment');
 
 Route::get('/admin/appointment/track/{id}', [AdminController::class, 'trackAppointment'])->name('admin.trackReservation');
+
+Route::get('/admin/track-notification/{appointment_number}', [AdminController::class, 'trackNotification'])->name('admin.trackNotification');
+
+// Inside your admin middleware route group
+Route::get('/admin/track-request/{appointment_number}', [AdminController::class, 'trackRequestNotification'])->name('admin.trackRequestNotif');
+Route::get('/admin/track-cancellation/{appointment_number}', [AdminController::class, 'trackCancellationNotification'])->name('admin.trackCancellationNotif');
 
 Route::get('/admin/appointment/complete/{id}', [AdminController::class, 'completeReservation'])->name('admin.completeReservation');
 
@@ -152,5 +158,15 @@ Route::post("/admin/treatments/update/{id}", [TreatmentController::class, "updat
 
 Route::get("/admin/treatments/delete/{id}", [TreatmentController::class, "delete"])->name("treatment.delete");
 
+Route::get('/admin/notifications/clear', [AdminController::class, 'markAllRead'])->name('admin.notifications.markAllRead');
 
+Route::get('/admin/notifications/unread-count', function() {
+    $user = auth()->user();
+    
+    return response()->json([
+        'count' => $user ? $user->unreadNotifications->count() : 0,
+        // We use the property directly, then sort and filter using collection methods instead
+        'notifications' => $user ? $user->notifications->sortByDesc('created_at')->take(5)->values() : []
+    ]);
+})->name('admin.notifications.count');
 

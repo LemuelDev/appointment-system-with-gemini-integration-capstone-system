@@ -4,8 +4,10 @@
     <!-- head -->
     <thead>
        <tr>
-      <th class="text-lg text-center">Patient Name</th>
       <th class="text-lg text-center">Patient Number</th>
+      <th class="text-lg text-center">Patient Name</th>
+      <th class="text-lg text-center">Age</th>
+      <th class="text-lg text-center">Address</th>
       <th class="text-lg text-center">Total Appointments</th>
       <th class="text-lg text-center">Action Taken</th>
     </tr>
@@ -13,13 +15,15 @@
     <tbody>
             @forelse ($appointmentHistory as $patient)
       <tr>
+        <td class="text-center font-bold text-md">{{ $patient->patient_number }}</td>
         <td class="text-md text-center min-w-[100px]">
           {{ $patient->firstname }}
           {{ $patient->middlename }}
           {{ $patient->lastname }}
           {{ $patient->extensionname }}
         </td>
-        <td class="text-center font-bold text-md">{{ $patient->patient_number }}</td>
+        <td class="text-center  text-md">{{ $patient->age }}</td>
+        <td class="text-center  text-md">{{ $patient->address }}</td>
         <td class="text-center font-bold text-md">{{ $patient->time_slots_count }}</td>
         <td class="text-center">
             <a href="{{ route('admin.showPatient', $patient->id) }}" class="btn btn-accent">View</a>

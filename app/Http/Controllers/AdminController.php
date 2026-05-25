@@ -27,6 +27,13 @@ use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
+    public function markAllRead()
+{
+    if (auth()->check()) {
+        auth()->user()->unreadNotifications->markAsRead();
+    }
+    return redirect()->back();
+}
 
     public function storeClinicHours(Request $request){
          $request->validate([
@@ -447,7 +454,7 @@ class AdminController extends Controller
             $query->where('reservations.firstname', 'like', "%{$search}%");
         }
 
-        $reservations = $query->orderBy('reservations.firstname', 'asc')
+        $reservations = $query->orderBy('created_at', 'desc')
                            ->select('time_slots.*')
                            ->paginate(6)
                            // THIS IS THE FIX: Use appends(request()->query())
@@ -503,6 +510,34 @@ class AdminController extends Controller
         'reservation' => $reservation
     ]);
     }
+
+   public function trackNotification(Request $request, $appointment_number)
+{
+    // 1. Look up the TimeSlot row using the custom appointment number string
+    $slot = TimeSlot::where('appointment_number', $appointment_number)->firstOrFail();
+
+    // 2. Use that slot's actual database ID column to pull the linked reservation data
+    $reservation = Reservation::where('timeslot_id', $slot->id)->first();
+    // NOTE: If your reservations table uses a different column name (like 'appointment_id'), 
+    // change 'timeslot_id' above to match your exact database column.
+
+    // 3. Check for our navbar tracking parameter to clear out the notification item
+    if ($request->has('notification_id')) {
+        $notification = auth()->user()->notifications
+                                      ->where('id', $request->notification_id)
+                                      ->first();
+        if ($notification) {
+            $notification->markAsRead();
+        }
+    }
+
+    // 4. Return your track reservation panel layout passing the matching records
+    return view('admin.trackReservation', [
+        'slot' => $slot,
+        'reservation' => $reservation
+    ]);
+}
+
 
     public function patientHistory(Reservation $id)
 {
