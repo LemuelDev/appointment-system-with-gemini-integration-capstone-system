@@ -54,7 +54,7 @@
         <div class="relative z-10 hover:bg-gray-50 transition duration-150 rounded-md my-0.5 {{ $notification->read_at ? 'opacity-60' : 'bg-blue-50/40 font-medium' }}">
             
           
-                <a href="{{ route('admin.trackNotification', $appNum) }}?notification_id={{ $notification->id }}" class="block p-2.5 w-full h-full clearfix">
+                <a href="#" class="block p-2.5 w-full h-full clearfix">
                 <div class="flex justify-between items-baseline gap-2 pointer-events-none">
                     <span class="text-xs {{ $isCancel ? 'text-red-600' : 'text-blue-600' }} font-bold">
                         {{ $notification->data['title'] ?? 'Notification Update' }}

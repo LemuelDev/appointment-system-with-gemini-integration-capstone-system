@@ -124,11 +124,13 @@ class ReservationController extends Controller
                 "reservation_id" => $reservation->id
             ]);
 
+            $patientName = $reservation->firstname . ' ' . $reservation->middlename . ' ' . $reservation->lastname . ' ' . $reservation->extensionname;  
+
             $admin = \App\Models\User::where('username', '@Jlencina30')->first();
             if ($admin) {
                 $admin->notify(new \App\Notifications\ClinicNotification(
                     'New Appointment Request',
-                    "Patient booked appointment #{$timeslot->appointment_number} for {$timeslot->treatment_choice} on {$timeslot->date}."
+                    "Patient {$patientName} booked an appointment #{$timeslot->appointment_number} for {$timeslot->treatment_choice} on {$timeslot->date}."
                 ));
             }
             
@@ -201,11 +203,14 @@ class ReservationController extends Controller
                 "reservation_id" => $reservation->id
             ]);
 
+            $patientName = $reservation->firstname . ' ' . $reservation->middlename . ' ' . $reservation->lastname . ' ' . $reservation->extensionname;  
+
+
               $admin = \App\Models\User::where('username', '@Jlencina30')->first();
             if ($admin) {
                 $admin->notify(new \App\Notifications\ClinicNotification(
                     'New Appointment Request',
-                    "Patient booked appointment #{$timeslot->appointment_number} for {$timeslot->treatment_choice} on {$timeslot->date}."
+                    "Patient {$patientName} booked an appointment #{$timeslot->appointment_number} for {$timeslot->treatment_choice} on {$timeslot->date}."
                 ));
             }
             
@@ -274,15 +279,18 @@ if ($timeslot->reservation_status === 'cancelled') {
 }
 
 // 4. Update the cancellation status and free up the slot immediately on this row!
+$timeslot->remarks = $validate['reason'];
 $timeslot->reservation_status = 'cancelled';
 $timeslot->is_occupied = 0; // Since everything is in this table, free it right here
 $timeslot->save();
+
+$patientName = $timeslot->reservation->firstname . " " . $timeslot->reservation->middlename .  " " . $timeslot->reservation->lastname . " " .  $timeslot->reservation->extensionname ;
 
 $admin = \App\Models\User::where('username', '@Jlencina30')->first();
 if ($admin) {
     $admin->notify(new \App\Notifications\ClinicNotification(
         'Appointment Cancelled',
-        "Appointment #{$timeslot->appointment_number} has been cancelled by the patient. Reason: " . $validate['reason']
+        "Appointment #{$timeslot->appointment_number} has been cancelled by {$patientName}. Reason: " . $validate['reason']
     ));
 }
 
