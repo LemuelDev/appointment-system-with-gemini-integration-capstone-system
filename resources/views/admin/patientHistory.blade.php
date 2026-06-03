@@ -49,10 +49,13 @@
                 <input type="date" id="end_date" name="end_date" class="input input-bordered" required>
             </div>
 
-            <div class="mt-6 flex flex-wrap gap-2">
+            <div class="mt-6 flex flex-wrap gap-2 justify-center ">
                 <button type="button" onclick="setLastWeek()" class="btn btn-outline btn-sm">Last Week</button>
                 <button type="button" onclick="setLastMonth()" class="btn btn-outline btn-sm">Last Month</button>
-                <button type="button" onclick="setLastTwoMonths()" class="btn btn-outline btn-sm">Last 2 Months</button>
+                <button type="button" onclick="setLastThreeMonths()" class="btn btn-outline btn-sm">Last 2 Months</button>
+                <button type="button" onclick="setLastTwoMonths()" class="btn btn-outline btn-sm">Last 3 Months</button>
+                <button type="button" onclick="setLastSixMonths()" class="btn btn-outline btn-sm">Last 6 Months</button>
+                    <button type="button" onclick="setLastYear()" class="btn btn-outline btn-sm">Last 1 Year</button>
             </div>
 
             <div class="modal-action">
@@ -86,6 +89,26 @@
                     const today = new Date();
                     const lastTwoMonths = new Date(today);
                     lastTwoMonths.setMonth(today.getMonth() - 2);
+                    setDates(lastTwoMonths.toISOString().split('T')[0], today.toISOString().split('T')[0]);
+                }
+
+                 function setLastThreeMonths() {
+                    const today = new Date();
+                    const lastTwoMonths = new Date(today);
+                    lastTwoMonths.setMonth(today.getMonth() - 3);
+                    setDates(lastTwoMonths.toISOString().split('T')[0], today.toISOString().split('T')[0]);
+                }
+
+                 function setLastSixMonths() {
+                    const today = new Date();
+                    const lastTwoMonths = new Date(today);
+                    lastTwoMonths.setMonth(today.getMonth() - 6);
+                    setDates(lastTwoMonths.toISOString().split('T')[0], today.toISOString().split('T')[0]);
+                }
+                 function setLastYear() {
+                    const today = new Date();
+                    const lastTwoMonths = new Date(today);
+                    lastTwoMonths.setMonth(today.getMonth() - 12);
                     setDates(lastTwoMonths.toISOString().split('T')[0], today.toISOString().split('T')[0]);
                 }
             </script>

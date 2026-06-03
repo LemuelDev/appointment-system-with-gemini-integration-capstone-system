@@ -54,9 +54,10 @@
     </table>
 
     <div style="margin-top: 50px; text-align: center;">
-        <p>Best Regards,</p>
-        <p style="font-weight: bold">The Management and Staff</p>
-        <p style="font-weight: bold">Espineli-Paradeza Dental Clinic</p>
-    </div>
+    <p style="margin-bottom: 40px;">Approved by:</p>
+    <p style="font-weight: bold; margin: 0;">Dr. Ma. Elena Espineli-Paradeza, DMD</p>
+    <p style="font-size: 0.9em; color: #555; margin: 0;">Clinic Director / Attending Dentist</p>
+    <p style="font-weight: bold; margin-top: 5px;">Espineli-Paradeza Dental Clinic</p>
+</div>
 </body>
 </html>
